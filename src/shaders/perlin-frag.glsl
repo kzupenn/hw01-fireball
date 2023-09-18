@@ -28,7 +28,7 @@ void main()
 {
     // Material base color (before shading)  
         float ff = 0.3+2.f*(length(vec3(fs_Pos))-1.f);
-        out_Col = vec4(1, 0.5+0.7*ff, 0.4*ff, 1.0);
+        out_Col = 0.5*u_Color + vec4(0.8, 0.7*ff, 0.4*ff, 0);
         return;
         vec4 diffuseColor = vec4(vec3(u_Color) * abs(1.f-length(vec3(fs_Pos))), u_Color[3]);
 

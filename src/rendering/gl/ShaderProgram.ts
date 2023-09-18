@@ -31,6 +31,7 @@ class ShaderProgram {
   unifViewProj: WebGLUniformLocation;
   unifColor: WebGLUniformLocation;
   unifTime: WebGLUniformLocation;
+  unifSound: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -93,6 +94,13 @@ class ShaderProgram {
     this.use();
     if (this.unifTime !== -1) {
       gl.uniform1f(this.unifTime, time);
+    }
+  }
+
+  setSound(sound: Uint8Array) {
+    this.use();
+    if (this.unifSound !== -1) {
+      gl.uniform1fv(this.unifSound, sound);
     }
   }
 

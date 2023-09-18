@@ -22,7 +22,7 @@ class OpenGLRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>, color: vec4, time: number) {
+  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>, color: vec4, sound: Uint8Array, time: number) {
     let model = mat4.create();
     let viewProj = mat4.create();
 
@@ -32,6 +32,7 @@ class OpenGLRenderer {
     prog.setViewProjMatrix(viewProj);
     prog.setGeometryColor(color);
     prog.setTime(time);
+    prog.setSound(sound);
 
     for (let drawable of drawables) {
       prog.draw(drawable);

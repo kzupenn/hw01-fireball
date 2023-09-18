@@ -15,10 +15,9 @@ const controls = {
   tesselations: 5,
   'Load Scene': loadScene, // A function pointer, essentially
   red: 256,
-  green: 0,
-  blue: 0,
-  'Toggle Frag': toggleFrag,
-  'Toggle Vert': toggleVert
+  green: 210,
+  blue: 10,
+  'Fire': Fire,
 };
 
 let icosphere: Icosphere;
@@ -40,16 +39,14 @@ const fragvert = {
   frag: 0,
   vert: 0
 }
-function toggleFrag() {
+function Fire() {
+  playAudio();
   if(fragvert.frag == 0){
     fragvert.frag = 1;
   }
   else {
     fragvert.frag = 0;
   }
-}
-
-function toggleVert() {
   if(fragvert.vert == 0){
     fragvert.vert = 1;
   }
@@ -60,37 +57,29 @@ function toggleVert() {
 
 
 //Audio
-var auctx = new(window.AudioContext)();
-var buffer, src, analyser, buffLen;
-var barWidth, dataArray;
+const audioTune = new Audio("https://github.com/kzupenn/hw01-fireball/blob/master/Pitbull%20-%20Fireball%20(Audio)%20ft.%20John%20Ryan.mp3?raw=true");
+audioTune.crossOrigin = "anonymous";
+var context = new AudioContext();
+var src = context.createMediaElementSource(audioTune);
+var analyser = context.createAnalyser();
+var dataArray : any;
 
-function startAudio() {
-  var url = "https://www.youtube.com/watch?v=-xGDNVejJlg&list=RDluc5N6Pf3rE&index=3";
-  var request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.responseType = 'arraybuffer';
-  request.onload = function() {
-    auctx.decodeAudioData(request.response, function(buffer) {
-      buffer = buffer;
-      src = auctx.createBufferSource();
-      src.buffer = buffer;
-      src.loop = false;
-      src.connect(auctx.destination);
-      src.start(0);
-      analyser = auctx.createAnalyser();
-      src.connect(analyser);
-      analyser.connect(auctx.destination);
-      analyser.fftSize = 256;
-      buffLen = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(buffLen);
-      barWidth = (500 - 2 * buffLen - 4) / buffLen * 2.5;
-      // ctx.lineWidth = barWidth;
-      // draw();
-    });
-  }
-  request.send();
-}
-startAudio();
+function playAudio() {
+  audioTune.load();
+  audioTune.play();
+  
+
+  src.connect(analyser);
+  analyser.connect(context.destination);
+
+  analyser.fftSize = 256;
+
+  var bufferLength = analyser.frequencyBinCount;
+  console.log(bufferLength);
+
+  dataArray = new Uint8Array(bufferLength);
+};
+
 
 function main() {
   // Initial display for framerate
@@ -108,8 +97,7 @@ function main() {
   gui.add(controls, 'red', 0, 256).step(1);
   gui.add(controls, 'green', 0, 256).step(1);
   gui.add(controls, 'blue', 0, 256).step(1);
-  gui.add(controls, 'Toggle Frag');
-  gui.add(controls, 'Toggle Vert');
+  gui.add(controls, 'Fire');
 
 
   // get canvas and webgl context
@@ -166,11 +154,15 @@ function main() {
       timetick = 0;
     }
     
-    
-    renderer.render(camera, shaderprog, [
-      icosphere,
-      // square,
-    ], vec4.fromValues(controls.red/256, controls.green/256, controls.blue/256, 1), timetick);
+    analyser.getByteFrequencyData(dataArray);
+
+    renderer.render(camera, 
+      shaderprog, 
+      [icosphere], 
+      vec4.fromValues(controls.red/256, controls.green/256, controls.blue/256, 1), 
+      dataArray,
+      timetick
+    );
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame
