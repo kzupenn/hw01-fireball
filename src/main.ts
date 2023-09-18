@@ -57,14 +57,17 @@ function Fire() {
 
 
 //Audio
-const audioTune = new Audio("https://github.com/kzupenn/hw01-fireball/blob/master/Pitbull%20-%20Fireball%20(Audio)%20ft.%20John%20Ryan.mp3?raw=true");
-audioTune.crossOrigin = "anonymous";
-var context = new AudioContext();
-var src = context.createMediaElementSource(audioTune);
-var analyser = context.createAnalyser();
-var dataArray : any;
+var audioTune, context, src, analyser : any, dataArray : Uint8Array;
+var fireballed: boolean = false;
 
 function playAudio() {
+  fireballed = true;
+  audioTune = new Audio("https://github.com/kzupenn/hw01-fireball/blob/master/Pitbull%20-%20Fireball%20(Audio)%20ft.%20John%20Ryan.mp3?raw=true");
+  audioTune.crossOrigin = "anonymous";
+  context = new AudioContext();
+  src = context.createMediaElementSource(audioTune);
+  analyser = context.createAnalyser();
+
   audioTune.load();
   audioTune.play();
   
@@ -154,7 +157,7 @@ function main() {
       timetick = 0;
     }
     
-    analyser.getByteFrequencyData(dataArray);
+    if(fireballed) analyser.getByteFrequencyData(dataArray);
 
     renderer.render(camera, 
       shaderprog, 
