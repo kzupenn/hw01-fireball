@@ -4,7 +4,7 @@
 
 Features of the project implemented
 
-1. Perlin-based vertex and color modifiers. The fireball has a base ripple effect created from fBm with Perlin noise, which loops over time based on additional trig functions with u_Time input.
+1. Perlin-based vertex and color modifiers. The fireball has a base ripple effect created from fBm with Perlin noise, which loops over time based on additional trig functions with u_Time input. The fireball will also slightly change its base color as a function of time regardless of user input.
 2. Controls to customize various aspects of the fireball. Users can customize the base color of the fireball with rgb sliders. To customize the fireball, users can modify values that change the volatility (how fast flames rise and fall), explosivity (how far out flames can go), and flames color (how quickly the color gradients from the center to the edge) of the fireball. Users can also explore the music feature by uploading an mp3 file of their choice. 
 3. Music-based flames on the fireball. Audio is played and parsed into a data array. This data array is then processed to calculate positions (additional vertex position modifiers) of the fire effects of the fireball, which are then passed into the shaders. Based on a value output by fBm Perlin noise on the position of the vertex, we select the corresponding index inside of the data array.
 
