@@ -36,8 +36,8 @@ function loadScene() {
 }
 
 const fragvert = {
-  frag: 0,
-  vert: 0
+  frag: 1,
+  vert: 1
 }
 
 const audio_decay = 0.07;
@@ -46,23 +46,12 @@ const flame_max = 500;
 function handleFiles(event: any) {
   var files = event.target.files;
   playAudio(URL.createObjectURL(files[0]));
-  if(fragvert.frag == 0){
-    fragvert.frag = 1;
-  }
-  else {
-    fragvert.frag = 0;
-  }
-  if(fragvert.vert == 0){
-    fragvert.vert = 1;
-  }
-  else {
-    fragvert.vert = 0;
-  }
 }
 
 
 //Audio
-var audioTune, context, src, analyser : any, dataArray : Uint8Array, oldDataArray: Float32Array, tempdata : Float32Array, prevdata : Float32Array;
+var audioTune, context, src, analyser : any, dataArray : Uint8Array, oldDataArray: Float32Array, tempdata : Float32Array, prevdata : Float32Array, 
+targetArray: Float32Array, currArray: Float32Array;
 dataArray = new Uint8Array(128);
 var fireballed: boolean = false;
 
@@ -87,7 +76,8 @@ function playAudio(file: any) {
   console.log(bufferLength);
 
   dataArray = new Uint8Array(bufferLength);
-  oldDataArray = new Float32Array(bufferLength);
+  currArray = new Float32Array(bufferLength);
+  targetArray = new Float32Array(bufferLength);
 };
 
 
@@ -178,26 +168,26 @@ function main() {
       analyser.getByteFrequencyData(dataArray);
       tempdata = Float32Array.from(dataArray);
       for(let i = 0; i < tempdata.length; i++) {
-        //tempdata[i] = (tempdata[i] + prevdata[i]) / 2;
-        tempdata[i] = Math.max(oldDataArray[i], tempdata[i], 1.5*(tempdata[i]-oldDataArray[i]));
-      }
-      prevdata = Float32Array.from(dataArray);
-      //smooth out volume transitions
-      oldDataArray = tempdata;
-      for(let i = 0; i < oldDataArray.length; i++) {
-        if(oldDataArray[i] > 0) oldDataArray[i]-= 1.5;
+        targetArray[i] = Math.max(currArray[i], tempdata[i], 5*(tempdata[i]-currArray[i]));
+        if(targetArray[i] > currArray[i]) {
+          currArray[i] += Math.max(3, (targetArray[i]-currArray[i])/20);
+          targetArray[i] -= 0.5;
+          if(currArray[i] + 5 >= targetArray[i]) targetArray[i] = 0;
+        }
+        else {
+          currArray[i] -= Math.max(1, Math.min(3, (currArray[i]-targetArray[i])/10));
+        }
       }
     }
     else {
-      tempdata = new Float32Array(128);
-      prevdata = new Float32Array(128);
+      currArray = new Float32Array(128);
     }
 
     renderer.render(camera, 
       shaderprog, 
       [icosphere], 
       vec4.fromValues(controls.red/256, controls.green/256, controls.blue/256, 1), 
-      tempdata,
+      currArray,
       timetick
     );
     stats.end();

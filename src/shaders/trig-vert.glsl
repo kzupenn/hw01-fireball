@@ -101,7 +101,7 @@ void main()
     vec3 pdelta = vec3(vs_Pos) + vec3(sin(t), cos(t), sin(t)*cos(t));
 
     float i = fbm(10, 5.f*pdelta);
-    float soundMod = max(1.f + (u_Sound[int(clamp(fbm(5, vec3(vs_Pos)) * 50.f + 50.f, 0.f, 127.f))] - 150.f)/140.f, 0.65);
+    float soundMod = max(1.f + (u_Sound[int(clamp(fbm(5, vec3(vs_Pos)) * 50.f + 50.f, 0.f, 127.f))] - 150.f)/80.f, 0.6);
     fs_Col = vs_Col; 
           
     
