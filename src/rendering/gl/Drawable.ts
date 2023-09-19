@@ -6,10 +6,12 @@ abstract class Drawable {
   bufIdx: WebGLBuffer;
   bufPos: WebGLBuffer;
   bufNor: WebGLBuffer;
+  bufSound: WebGLBuffer;
 
   idxBound: boolean = false;
   posBound: boolean = false;
   norBound: boolean = false;
+  soundBound: boolean = false;
 
   abstract create() : void;
 
@@ -34,6 +36,11 @@ abstract class Drawable {
     this.bufNor = gl.createBuffer();
   }
 
+  generateSound() {
+    this.soundBound = true;
+    this.bufSound = gl.createBuffer();
+  }
+
   bindIdx(): boolean {
     if (this.idxBound) {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -53,6 +60,13 @@ abstract class Drawable {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.bufNor);
     }
     return this.norBound;
+  }
+
+  bindSound(): boolean {
+    if (this.soundBound) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufSound);
+    }
+    return this.soundBound;
   }
 
   elemCount(): number {

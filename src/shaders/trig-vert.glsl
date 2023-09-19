@@ -21,17 +21,22 @@ uniform mat4 u_ViewProj;    // The matrix that defines the camera's transformati
 
 uniform float u_Time;
 
+uniform float u_Sound[128];
+
 in vec4 vs_Pos;             // The array of vertex positions passed to the shader
 
 in vec4 vs_Nor;             // The array of vertex normals passed to the shader
 
 in vec4 vs_Col;             // The array of vertex colors passed to the shader.
 
+in float vs_Sound;
+
 
 out vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.
 out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Pos;
+out float fs_Sound;
 
 const vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of
                                         //the geometry in the fragment shader.
@@ -91,11 +96,18 @@ float fbm(int c, vec3 p) {
  
 void main()
 {
-    fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation
-
+                      // Pass the vertex colors to the fragment shader for interpolation
     float t = u_Time/100.f;
     vec3 pdelta = vec3(vs_Pos) + vec3(sin(t), cos(t), sin(t)*cos(t));
-    vec4 newPos = vec4(vec3(vs_Pos) * (1.0 + 1.0*fbm(10, 5.f*pdelta)), 1.f);
+
+    float i = fbm(10, 5.f*pdelta);
+    float soundMod = max(1.f + (u_Sound[int(clamp(fbm(5, vec3(vs_Pos)) * 50.f + 50.f, 0.f, 127.f))] - 150.f)/140.f, 0.65);
+    fs_Col = vs_Col; 
+          
+    
+    vec4 newPos = vec4(soundMod* vec3(vs_Pos) * (1.0 + 0.5*i), 1.f);
+
+
     fs_Pos = newPos;
 
     mat3 invTranspose = mat3(u_ModelInvTr);
@@ -112,4 +124,6 @@ void main()
 
     gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is
                                              // used to render the final positions of the geometry's vertices
+
+    fs_Sound = 1.f;//soundMode;
 }

@@ -17,7 +17,7 @@ const controls = {
   red: 256,
   green: 210,
   blue: 10,
-  'Fire': Fire,
+  'upload a song': function() {document.getElementById('myInput').click();},
 };
 
 let icosphere: Icosphere;
@@ -39,8 +39,13 @@ const fragvert = {
   frag: 0,
   vert: 0
 }
-function Fire() {
-  playAudio();
+
+const audio_decay = 0.07;
+const flame_max = 500;
+
+function handleFiles(event: any) {
+  var files = event.target.files;
+  playAudio(URL.createObjectURL(files[0]));
   if(fragvert.frag == 0){
     fragvert.frag = 1;
   }
@@ -57,12 +62,13 @@ function Fire() {
 
 
 //Audio
-var audioTune, context, src, analyser : any, dataArray : Uint8Array;
+var audioTune, context, src, analyser : any, dataArray : Uint8Array, oldDataArray: Float32Array, tempdata : Float32Array, prevdata : Float32Array;
+dataArray = new Uint8Array(128);
 var fireballed: boolean = false;
 
-function playAudio() {
+function playAudio(file: any) {
   fireballed = true;
-  audioTune = new Audio("https://github.com/kzupenn/hw01-fireball/blob/master/Pitbull%20-%20Fireball%20(Audio)%20ft.%20John%20Ryan.mp3?raw=true");
+  audioTune = new Audio(file);
   audioTune.crossOrigin = "anonymous";
   context = new AudioContext();
   src = context.createMediaElementSource(audioTune);
@@ -81,6 +87,7 @@ function playAudio() {
   console.log(bufferLength);
 
   dataArray = new Uint8Array(bufferLength);
+  oldDataArray = new Float32Array(bufferLength);
 };
 
 
@@ -93,6 +100,16 @@ function main() {
   stats.domElement.style.top = '0px';
   document.body.appendChild(stats.domElement);
 
+  // Add a hidden file upload
+  const upload_node = document.createElement("input"); 
+  upload_node.setAttribute('id', 'myInput');
+  upload_node.setAttribute('type', 'file');
+  upload_node.setAttribute('style', 'visibility:hidden');
+  upload_node.addEventListener("change", handleFiles, false);
+
+  document.body.append(upload_node);
+
+
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
@@ -100,7 +117,7 @@ function main() {
   gui.add(controls, 'red', 0, 256).step(1);
   gui.add(controls, 'green', 0, 256).step(1);
   gui.add(controls, 'blue', 0, 256).step(1);
-  gui.add(controls, 'Fire');
+  gui.add(controls, 'upload a song');
 
 
   // get canvas and webgl context
@@ -157,13 +174,30 @@ function main() {
       timetick = 0;
     }
     
-    if(fireballed) analyser.getByteFrequencyData(dataArray);
+    if(fireballed) {
+      analyser.getByteFrequencyData(dataArray);
+      tempdata = Float32Array.from(dataArray);
+      for(let i = 0; i < tempdata.length; i++) {
+        //tempdata[i] = (tempdata[i] + prevdata[i]) / 2;
+        tempdata[i] = Math.max(oldDataArray[i], tempdata[i], 1.5*(tempdata[i]-oldDataArray[i]));
+      }
+      prevdata = Float32Array.from(dataArray);
+      //smooth out volume transitions
+      oldDataArray = tempdata;
+      for(let i = 0; i < oldDataArray.length; i++) {
+        if(oldDataArray[i] > 0) oldDataArray[i]-= 1.5;
+      }
+    }
+    else {
+      tempdata = new Float32Array(128);
+      prevdata = new Float32Array(128);
+    }
 
     renderer.render(camera, 
       shaderprog, 
       [icosphere], 
       vec4.fromValues(controls.red/256, controls.green/256, controls.blue/256, 1), 
-      dataArray,
+      tempdata,
       timetick
     );
     stats.end();

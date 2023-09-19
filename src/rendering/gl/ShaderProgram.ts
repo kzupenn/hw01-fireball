@@ -24,7 +24,7 @@ class ShaderProgram {
   attrPos: number;
   attrNor: number;
   attrCol: number;
-  attrTime: number;
+  attrSound: number;
 
   unifModel: WebGLUniformLocation;
   unifModelInvTr: WebGLUniformLocation;
@@ -47,12 +47,15 @@ class ShaderProgram {
     this.attrPos = gl.getAttribLocation(this.prog, "vs_Pos");
     this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
+    this.attrSound = gl.getAttribLocation(this.prog, "vs_Sound");
 
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
     this.unifTime      = gl.getUniformLocation(this.prog, "u_Time");
+    this.unifSound =      gl.getUniformLocation(this.prog, "u_Sound");
+
   }
 
   use() {
@@ -97,10 +100,10 @@ class ShaderProgram {
     }
   }
 
-  setSound(sound: Uint8Array) {
+  setSound(sound: Float32Array) {
     this.use();
     if (this.unifSound !== -1) {
-      gl.uniform1fv(this.unifSound, sound);
+      gl.uniform1fv(this.unifSound, Float32Array.from(sound));
     }
   }
 
@@ -117,11 +120,17 @@ class ShaderProgram {
       gl.vertexAttribPointer(this.attrNor, 4, gl.FLOAT, false, 0, 0);
     }
 
+    if (this.attrSound != -1 && d.bindSound()) {
+      gl.enableVertexAttribArray(this.attrSound);
+      gl.vertexAttribPointer(this.attrSound, 1, gl.FLOAT, false, 0, 0);
+    }
+
     d.bindIdx();
     gl.drawElements(d.drawMode(), d.elemCount(), gl.UNSIGNED_INT, 0);
 
     if (this.attrPos != -1) gl.disableVertexAttribArray(this.attrPos);
     if (this.attrNor != -1) gl.disableVertexAttribArray(this.attrNor);
+    if (this.attrSound != -1) gl.disableVertexAttribArray(this.attrSound);
   }
 };
 

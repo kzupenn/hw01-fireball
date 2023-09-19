@@ -7,6 +7,7 @@ class Icosphere extends Drawable {
   indices: Uint32Array;
   positions: Float32Array;
   normals: Float32Array;
+  sounds: Float32Array;
   center: vec4;
 
   constructor(center: vec3, public radius: number, public subdivisions: number) {
@@ -158,9 +159,16 @@ class Icosphere extends Drawable {
     this.normals = new Float32Array(this.buffer, normalByteOffset, vertices.length * 4);
     this.positions = new Float32Array(this.buffer, positionByteOffset, vertices.length * 4);
 
+    this.sounds = new Float32Array(this.buffer, indexByteOffset, triangles.length * 3);
+    for(let i = 0; i < triangles.length * 3; i++) {
+      this.sounds[i] = this.sounds[i]%128;
+    }
+
     this.generateIdx();
     this.generatePos();
     this.generateNor();
+
+    this.generateSound();
 
     this.count = this.indices.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -171,6 +179,9 @@ class Icosphere extends Drawable {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPos);
     gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufSound);
+    gl.bufferData(gl.ARRAY_BUFFER, this.sounds, gl.STATIC_DRAW);
 
     console.log(`Created icosphere with ${vertices.length} vertices`);
   }

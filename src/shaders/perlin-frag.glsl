@@ -13,12 +13,15 @@ precision highp float;
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
 
+uniform float u_Time;
+
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
 in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_Pos;
+in float fs_Sound;
 
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
@@ -27,8 +30,8 @@ out vec4 out_Col; // This is the final output color that you will see on your
 void main()
 {
     // Material base color (before shading)  
-        float ff = 0.3+2.f*(length(vec3(fs_Pos))-1.f);
-        out_Col = 0.5*u_Color + vec4(0.8, 0.7*ff, 0.4*ff, 0);
+        float ff = 0.3+1.5*(length(vec3(fs_Pos))/fs_Sound-1.f);
+        out_Col = 0.5*u_Color + vec4(0.8, (0.65+0.2*sin(u_Time/300.f))*ff, (0.35+0.2*cos(u_Time/300.f))*ff, 0);
         return;
         vec4 diffuseColor = vec4(vec3(u_Color) * abs(1.f-length(vec3(fs_Pos))), u_Color[3]);
 
