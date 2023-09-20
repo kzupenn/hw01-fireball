@@ -31,6 +31,8 @@ class ShaderProgram {
   unifViewProj: WebGLUniformLocation;
   unifColor: WebGLUniformLocation;
   unifTime: WebGLUniformLocation;
+  unifFlames: WebGLUniformLocation;
+  unifExplosivity: WebGLUniformLocation;
   unifSound: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
@@ -54,6 +56,8 @@ class ShaderProgram {
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
     this.unifTime      = gl.getUniformLocation(this.prog, "u_Time");
+    this.unifFlames = gl.getUniformLocation(this.prog, "u_Flames");
+    this.unifExplosivity = gl.getUniformLocation(this.prog, "u_Explosivity");
     this.unifSound =      gl.getUniformLocation(this.prog, "u_Sound");
 
   }
@@ -97,6 +101,20 @@ class ShaderProgram {
     this.use();
     if (this.unifTime !== -1) {
       gl.uniform1f(this.unifTime, time);
+    }
+  }
+
+  setExplosivity(explosivity: number) {
+    this.use();
+    if (this.unifExplosivity !== -1) {
+      gl.uniform1f(this.unifExplosivity, explosivity);
+    }
+  }
+
+  setFlames(flames: number) {
+    this.use();
+    if (this.unifFlames !== -1) {
+      gl.uniform1f(this.unifFlames, flames);
     }
   }
 

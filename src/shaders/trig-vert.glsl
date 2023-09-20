@@ -21,6 +21,8 @@ uniform mat4 u_ViewProj;    // The matrix that defines the camera's transformati
 
 uniform float u_Time;
 
+uniform float u_Explosivity;
+
 uniform float u_Sound[128];
 
 in vec4 vs_Pos;             // The array of vertex positions passed to the shader
@@ -100,12 +102,19 @@ void main()
     float t = u_Time/100.f;
     vec3 pdelta = vec3(vs_Pos) + vec3(sin(t), cos(t), sin(t)*cos(t));
 
-    float i = fbm(10, 5.f*pdelta);
-    float soundMod = max(1.f + (u_Sound[int(clamp(fbm(5, vec3(vs_Pos)) * 50.f + 50.f, 0.f, 127.f))] - 150.f)/80.f, 0.6);
+    float i = fbm(5, vec3(vs_Pos)) * 40.f + 40.f;
+    int i1 = int(floor(i));
+    int i2 = int(ceil(i));
+    float f = i-float(i1);
+
+    i1 = (i1+128)%128;
+    i2 = (i2+128)%128;
+
+    float soundMod = max(1.f + u_Explosivity * (u_Sound[i1] * f + u_Sound[i2] * (1.0-f) - 150.f)/320.f, 0.6);
     fs_Col = vs_Col; 
           
     
-    vec4 newPos = vec4(soundMod* vec3(vs_Pos) * (1.0 + 0.5*i), 1.f);
+    vec4 newPos = vec4(soundMod* vec3(vs_Pos) * (1.0 + 0.5*fbm(10, 5.f*pdelta)), 1.f);
 
 
     fs_Pos = newPos;

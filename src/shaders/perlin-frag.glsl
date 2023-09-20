@@ -15,6 +15,8 @@ uniform vec4 u_Color; // The color with which to render this instance of geometr
 
 uniform float u_Time;
 
+uniform float u_Flames;
+
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
 in vec4 fs_Nor;
@@ -30,22 +32,7 @@ out vec4 out_Col; // This is the final output color that you will see on your
 void main()
 {
     // Material base color (before shading)  
-        float ff = 0.3+1.5*(length(vec3(fs_Pos))/fs_Sound-1.f);
-        out_Col = 0.5*u_Color + vec4(0.8, (0.65+0.2*sin(u_Time/300.f))*ff, (0.35+0.2*cos(u_Time/300.f))*ff, 0);
-        return;
-        vec4 diffuseColor = vec4(vec3(u_Color) * abs(1.f-length(vec3(fs_Pos))), u_Color[3]);
-
-        // Calculate the diffuse term for Lambert shading
-        float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
-        // Avoid negative lighting values
-        // diffuseTerm = clamp(diffuseTerm, 0, 1);
-
-        float ambientTerm = 0.2;
-
-        float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
-                                                            //to simulate ambient lighting. This ensures that faces that are not
-                                                            //lit by our point light are not completely black.
-
-        // Compute final shaded color
-        out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
+    float ff = u_Flames * (0.08+0.4*(length(vec3(fs_Pos))/fs_Sound-1.f));
+    out_Col = 0.5*u_Color + vec4(0.5, (0.65+0.2*sin(u_Time/300.f))*ff, (0.35+0.2*cos(u_Time/300.f))*ff, 0);
+    return;
 }

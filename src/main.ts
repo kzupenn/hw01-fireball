@@ -18,7 +18,20 @@ const controls = {
   green: 210,
   blue: 10,
   'upload a song': function() {document.getElementById('myInput').click();},
+  fire_volatility: 3,
+  'explosivity': 4, 
+  'flames': 4,
+  'Fix my fireball!': setDefaultControls
 };
+
+function setDefaultControls() {
+  controls.tesselations = 5;
+  controls.red = 256;
+  controls.green = 210;
+  controls.blue = 10;
+  controls.fire_volatility = 3;
+  controls.explosivity = 4;
+}
 
 let icosphere: Icosphere;
 let square: Square;
@@ -39,9 +52,6 @@ const fragvert = {
   frag: 1,
   vert: 1
 }
-
-const audio_decay = 0.07;
-const flame_max = 500;
 
 function handleFiles(event: any) {
   var files = event.target.files;
@@ -64,7 +74,7 @@ function playAudio(file: any) {
   analyser = context.createAnalyser();
 
   audioTune.load();
-  audioTune.play();
+  
   
 
   src.connect(analyser);
@@ -78,6 +88,8 @@ function playAudio(file: any) {
   dataArray = new Uint8Array(bufferLength);
   currArray = new Float32Array(bufferLength);
   targetArray = new Float32Array(bufferLength);
+
+  audioTune.play();
 };
 
 
@@ -108,6 +120,10 @@ function main() {
   gui.add(controls, 'green', 0, 256).step(1);
   gui.add(controls, 'blue', 0, 256).step(1);
   gui.add(controls, 'upload a song');
+  gui.add(controls, 'fire_volatility', 1, 10).step(1).name('Fire Volatility');
+  gui.add(controls, 'explosivity', 1, 10).name('Fire Explosivity');
+  gui.add(controls, 'flames', 1, 10).name('Fire Flame Color');
+  gui.add(controls, 'Fix my fireball!');
 
 
   // get canvas and webgl context
@@ -168,14 +184,14 @@ function main() {
       analyser.getByteFrequencyData(dataArray);
       tempdata = Float32Array.from(dataArray);
       for(let i = 0; i < tempdata.length; i++) {
-        targetArray[i] = Math.max(currArray[i], tempdata[i], 5*(tempdata[i]-currArray[i]));
+        targetArray[i] = Math.max(currArray[i], tempdata[i], 1.6*controls.fire_volatility*(tempdata[i]-currArray[i]));
         if(targetArray[i] > currArray[i]) {
-          currArray[i] += Math.max(3, (targetArray[i]-currArray[i])/20);
-          targetArray[i] -= 0.5;
+          currArray[i] += Math.max(controls.fire_volatility, (targetArray[i]-currArray[i])/20);
+          targetArray[i] -= controls.fire_volatility/6;
           if(currArray[i] + 5 >= targetArray[i]) targetArray[i] = 0;
         }
         else {
-          currArray[i] -= Math.max(1, Math.min(3, (currArray[i]-targetArray[i])/10));
+          currArray[i] -= Math.max(controls.fire_volatility/3, Math.min(controls.fire_volatility, (currArray[i]-targetArray[i])/10));
         }
       }
     }
@@ -188,6 +204,8 @@ function main() {
       [icosphere], 
       vec4.fromValues(controls.red/256, controls.green/256, controls.blue/256, 1), 
       currArray,
+      controls.explosivity,
+      controls.flames,
       timetick
     );
     stats.end();
