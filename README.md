@@ -1,5 +1,8 @@
 # [Project 1: Noise](https://github.com/CIS-566-Fall-2022/hw01-fireball-base)
 
+## Name
+Kevin Zhang, PennId: kzupenn, Penn#: 56877791
+
 ## Documentation
 
 Features of the project implemented
