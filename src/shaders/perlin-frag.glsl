@@ -32,7 +32,7 @@ out vec4 out_Col; // This is the final output color that you will see on your
 void main()
 {
     // Material base color (before shading)  
-    float ff = u_Flames * (0.08+0.4*(length(vec3(fs_Pos))/fs_Sound-1.f));
-    out_Col = 0.5*u_Color + vec4(0.5, (0.65+0.2*sin(u_Time/300.f))*ff, (0.35+0.2*cos(u_Time/300.f))*ff, 0);
+    float ff = u_Flames * (0.08+0.35*(length(vec3(fs_Pos))/fs_Sound-1.f));
+    out_Col = 0.5*u_Color + vec4(0.5, (0.65+0.2*sin(u_Time/300.f))*ff, (0.35+0.2*cos(u_Time/300.f))*ff, 0.5);
     return;
 }

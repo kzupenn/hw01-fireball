@@ -17,7 +17,7 @@ const controls = {
   red: 256,
   green: 210,
   blue: 10,
-  'upload a song': function() {document.getElementById('myInput').click();},
+  'Upload a song': function() {document.getElementById('myInput').click();},
   fire_volatility: 3,
   'explosivity': 4, 
   'flames': 4,
@@ -25,12 +25,7 @@ const controls = {
 };
 
 function setDefaultControls() {
-  controls.tesselations = 5;
-  controls.red = 256;
-  controls.green = 210;
-  controls.blue = 10;
-  controls.fire_volatility = 3;
-  controls.explosivity = 4;
+  window.location.href=window.location.href;
 }
 
 let icosphere: Icosphere;
@@ -119,7 +114,7 @@ function main() {
   gui.add(controls, 'red', 0, 256).step(1);
   gui.add(controls, 'green', 0, 256).step(1);
   gui.add(controls, 'blue', 0, 256).step(1);
-  gui.add(controls, 'upload a song');
+  gui.add(controls, 'Upload a song');
   gui.add(controls, 'fire_volatility', 1, 10).step(1).name('Fire Volatility');
   gui.add(controls, 'explosivity', 1, 10).name('Fire Explosivity');
   gui.add(controls, 'flames', 1, 10).name('Fire Flame Color');
@@ -128,7 +123,7 @@ function main() {
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
-  const gl = <WebGL2RenderingContext> canvas.getContext('webgl2', {alpha:false});
+  const gl = <WebGL2RenderingContext> canvas.getContext('webgl2', {alpha:true});
   if (!gl) {
     alert('WebGL 2 not supported!');
   }
@@ -143,7 +138,10 @@ function main() {
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.DEPTH_TEST);
+  //alpha testing
 
   const frags = [
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')), 
